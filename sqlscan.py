@@ -1,3 +1,4 @@
+#!/bin/env python
 from socket import gethostbyname
 from urllib.parse import urljoin, urlparse
 from helptxt import ArgumentParser
