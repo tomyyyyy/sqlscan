@@ -1,6 +1,6 @@
 #!/bin/env python3
 '''
-页面加载，与信息返回
+页面加载，与暴露信息返回
 '''
 import requests
 import sys
@@ -14,7 +14,7 @@ class PageInfo():
     url = ''
     page_normal = '' # normal page
     req = '' # requests 请求
-    malinfo_location = [] # 恶意信息位置
+    malinfo_location = [] # 恶意信息位置, [ ['root', 'tree' ...],['root', 'tree' ... ], ...]
 
     def __init__(self, url):
         '''
@@ -35,6 +35,7 @@ class PageInfo():
         '''
          假设get方式请求，并且只有一个参数
          多参数，至暂未考虑
+         应该先调用get_malinfo_location,进行恶意点初始化
          执行payload，返回页面信息点 ['', '', '']
          返回-1表示找不到暴露信息路径
          返回-2，表示页面404
@@ -57,7 +58,7 @@ class PageInfo():
 
     def get_malinfo_location(self, page_malformation, special_num_list):
         '''
-        进行页面信息位置探测，返回页面信息暴露位置次数
+        进行页面信息位置探测,初始化self.malinfo_location，返回页面信息暴露位置次数
         '''
         page_parse = Page_parse(page_malformation)
         for special_num in special_num_list:
