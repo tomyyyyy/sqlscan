@@ -13,32 +13,32 @@ class ArgumentParser(object):
 
     def parseConfig(self):
         pass
-        # # General
-        # self.threadsCount = config.safe_getint("general", "threads", 10, list(range(1, 50)))
-        # self.excludeStatusCodes = config.safe_get("general", "exclude-status", None)
-        # self.redirect = config.safe_getboolean("general", "follow-redirects", False)
-        # self.recursive = config.safe_getboolean("general", "recursive", False)
-        # self.suppressEmpty = config.safe_getboolean("general", "suppress-empty", False)
-        # self.testFailPath = config.safe_get("general", "scanner-fail-path", "").strip()
-        # self.saveHome = config.safe_getboolean("general", "save-logs-home", False)
+    # # General
+    # self.threadsCount = config.safe_getint("general", "threads", 10, list(range(1, 50)))
+    # self.excludeStatusCodes = config.safe_get("general", "exclude-status", None)
+    # self.redirect = config.safe_getboolean("general", "follow-redirects", False)
+    # self.recursive = config.safe_getboolean("general", "recursive", False)
+    # self.suppressEmpty = config.safe_getboolean("general", "suppress-empty", False)
+    # self.testFailPath = config.safe_get("general", "scanner-fail-path", "").strip()
+    # self.saveHome = config.safe_getboolean("general", "save-logs-home", False)
 
-        # # Reports
-        # self.autoSave = config.safe_getboolean("reports", "autosave-report", False)
-        # self.autoSaveFormat = config.safe_get("reports", "autosave-report-format", "plain", ["plain", "json", "simple"])
-        # # Dictionary
-        # self.wordlist = config.safe_get("dictionary", "wordlist",
-        #                                 FileUtils.buildPath(self.script_path, "db", "dicc.txt"))
-        # self.lowercase = config.safe_getboolean("dictionary", "lowercase", False)
-        # self.forceExtensions = config.safe_get("dictionary", "force-extensions", False)
+    # # Reports
+    # self.autoSave = config.safe_getboolean("reports", "autosave-report", False)
+    # self.autoSaveFormat = config.safe_get("reports", "autosave-report-format", "plain", ["plain", "json", "simple"])
+    # # Dictionary
+    # self.wordlist = config.safe_get("dictionary", "wordlist",
+    #                                 FileUtils.buildPath(self.script_path, "db", "dicc.txt"))
+    # self.lowercase = config.safe_getboolean("dictionary", "lowercase", False)
+    # self.forceExtensions = config.safe_get("dictionary", "force-extensions", False)
 
-        # # Connection
-        # self.useRandomAgents = config.safe_get("connection", "random-user-agents", False)
-        # self.useragent = config.safe_get("connection", "user-agent", None)
-        # self.delay = config.safe_get("connection", "delay", 0)
-        # self.timeout = config.safe_getint("connection", "timeout", 30)
-        # self.maxRetries = config.safe_getint("connection", "max-retries", 5)
-        # self.proxy = config.safe_get("connection", "http-proxy", None)
-        # self.requestByHostname = config.safe_get("connection", "request-by-hostname", False)
+    # # Connection
+    # self.useRandomAgents = config.safe_get("connection", "random-user-agents", False)
+    # self.useragent = config.safe_get("connection", "user-agent", None)
+    # self.delay = config.safe_get("connection", "delay", 0)
+    # self.timeout = config.safe_getint("connection", "timeout", 30)
+    # self.maxRetries = config.safe_getint("connection", "max-retries", 5)
+    # self.proxy = config.safe_get("connection", "http-proxy", None)
+    # self.requestByHostname = config.safe_get("connection", "request-by-hostname", False)
 
 
     def parseArguments(self):
@@ -67,19 +67,19 @@ class ArgumentParser(object):
         '''
 
         parser.add_option('-f','--file',
-                        action='store',dest='filename',
-                        metavar='FILE',help='write output to FILE')
+                          action='store',dest='filename',
+                          metavar='FILE',help='write output to FILE')
 
         parser.add_option('-m','--mode',
-                        default = 'intermediate',
-                        help='interaction mode:novice,intermediate,or expert [default:%default]')
+                          default = 'intermediate',
+                          help='interaction mode:novice,intermediate,or expert [default:%default]')
         parser.add_option('-v','--verbose',
-                        action='store_true',dest='verbose',default=True,
-                        help='make lots of noise [default]')
+                          action='store_true',dest='verbose',default=True,
+                          help='make lots of noise [default]')
 
         parser.add_option('-q','--quiet',
-                        action='store_false',dest='verbose',
-                        help="be vewwy quiet (I'm hunting wabbits)")
+                          action='store_false',dest='verbose',
+                          help="be vewwy quiet (I'm hunting wabbits)")
 
         group = OptionGroup(parser,'Dangerous Options',
                             'Caution: use these options at your own risk.'
@@ -93,9 +93,9 @@ class ArgumentParser(object):
 
         group = OptionGroup(parser,'Debug Options')
         group.add_option('-d','--debug',action='store_true',
-                        help='Print debug information.')
+                         help='Print debug information.')
         group.add_option('-s','--sql',action='store_true',
-                        help='Print all SQL statements executed')
+                         help='Print all SQL statements executed')
         group.add_option('-e',action='store_true',help='Print every action done')
         parser.add_option_group(group)
 
