@@ -1,4 +1,6 @@
 #!/bin/env python3
+# nsfoxer
+
 '''
 页面加载，与暴露信息返回
 '''
@@ -13,7 +15,6 @@ class PageInfo():
     '''
     url = ''
     page_normal = '' # normal page
-    req = '' # requests 请求
     malinfo_location = [] # 恶意信息位置, [ ['root', 'tree' ...],['root', 'tree' ... ], ...]
 
     def __init__(self, url):
@@ -21,11 +22,11 @@ class PageInfo():
         url :正常页面url访问
         '''
         self.url = url
-        self.req = requests.get(url=url)
+        req = requests.get(url=url)
 
-        if self.req.status_code == 200:
+        if req.status_code == 200:
             # 将正常页面保存至页面已对payload进行比较
-            self.page_normal = self.req.text
+            self.page_normal = req.text
         else:
             # 如果url访问 ！= 200， 直接报错退出
             sys.stderr.write('website should response 200 status_code\n')
@@ -43,29 +44,35 @@ class PageInfo():
         if len(self.malinfo_location) == 0:
             return -1
 
-        self.req = requests.get(url=url_malformation)
-        if self.req.status_code == 404:
+        req = requests.get(url=url_malformation)
+        if req.status_code == 404:
             # 404 页面，此次payload有误，重新加载
             return -2
         else:
             # 进行页面比较
             malinformation = []
-            page_malformation = self.req.text
+            page_malformation = req.text
             page_parse = Page_parse(page_malformation)
             for loaction_list in self.malinfo_location:
                 malinformation.append(page_parse.loction2str(loaction_list))
             return malinformation
 
-    def get_malinfo_location(self, page_malformation, special_num_list):
+    def init_malinfo_location(self, url_malformation, special_num_list):
         '''
         进行页面信息位置探测,初始化self.malinfo_location，返回页面信息暴露位置次数
+        special_num_list: 特定字符串列表. ['dsa', 'special']
         '''
+        req = requests.get(url=url_malformation)
+        page_malformation = req.text
         page_parse = Page_parse(page_malformation)
         for special_num in special_num_list:
             location= page_parse.str2location(str(special_num))
             if len(location) != 0:
                 self.malinfo_location.append(location)
         return len(self.malinfo_location)
+
+    def get_malinfo_location(self):
+        return self.malinfo_location
 
 
 class Page_parse(HTMLParser):

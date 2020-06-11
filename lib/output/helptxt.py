@@ -9,38 +9,12 @@ class ArgumentParser(object):
     def __init__(self, script_path):
         self.script_path = script_path
         self.parseConfig()
-        options = self.parseArguments()
+        self.options = self.parseArguments()
 
     def parseConfig(self):
         pass
-        # # General
-        # self.threadsCount = config.safe_getint("general", "threads", 10, list(range(1, 50)))
-        # self.excludeStatusCodes = config.safe_get("general", "exclude-status", None)
-        # self.redirect = config.safe_getboolean("general", "follow-redirects", False)
-        # self.recursive = config.safe_getboolean("general", "recursive", False)
-        # self.suppressEmpty = config.safe_getboolean("general", "suppress-empty", False)
-        # self.testFailPath = config.safe_get("general", "scanner-fail-path", "").strip()
-        # self.saveHome = config.safe_getboolean("general", "save-logs-home", False)
-
-        # # Reports
-        # self.autoSave = config.safe_getboolean("reports", "autosave-report", False)
-        # self.autoSaveFormat = config.safe_get("reports", "autosave-report-format", "plain", ["plain", "json", "simple"])
-        # # Dictionary
-        # self.wordlist = config.safe_get("dictionary", "wordlist",
-        #                                 FileUtils.buildPath(self.script_path, "db", "dicc.txt"))
-        # self.lowercase = config.safe_getboolean("dictionary", "lowercase", False)
-        # self.forceExtensions = config.safe_get("dictionary", "force-extensions", False)
-
-        # # Connection
-        # self.useRandomAgents = config.safe_get("connection", "random-user-agents", False)
-        # self.useragent = config.safe_get("connection", "user-agent", None)
-        # self.delay = config.safe_get("connection", "delay", 0)
-        # self.timeout = config.safe_getint("connection", "timeout", 30)
-        # self.maxRetries = config.safe_getint("connection", "max-retries", 5)
-        # self.proxy = config.safe_get("connection", "http-proxy", None)
-        # self.requestByHostname = config.safe_get("connection", "request-by-hostname", False)
-
-
+        # print(self.options.url)
+       
     def parseArguments(self):
         usage = 'Usage: %prog [options] arg1 arg2 ...'
 
@@ -51,6 +25,10 @@ class ArgumentParser(object):
         parser.add_option('-u','--url',
                         action='store',dest='url',
                         metavar='url',help='input url')
+
+        parser.add_option('-l',
+                        action='store',dest='level',
+                        metavar='level',help='input level')
 
         parser.add_option('--thread',
                         action='store',dest='threads_Count',default=5,
