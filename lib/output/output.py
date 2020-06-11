@@ -63,6 +63,7 @@ class Output(object):
         print(self.color.white("|"), end=" ")
         print(self.color.yellow("threads:"), end=" ")
         print(self.color.blue(threads), end=" ")
+        print()
 
 
 class Colored(object):

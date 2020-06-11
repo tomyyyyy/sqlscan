@@ -56,6 +56,7 @@ class injection_point():
                 r2 = requests.get(self.urlpath,params=param2,headers = self.headers)
                 if self.judge_page(param1) and not self.judge_page(param2):
                     self.injection_point, self.injection_url = j, r1.url
+                    self.output.info_inject(j)
                     return True
         return False
 
