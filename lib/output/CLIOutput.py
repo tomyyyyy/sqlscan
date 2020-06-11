@@ -5,16 +5,16 @@ from lib.output.output import Colored, Output
 import pyfiglet
 import os
 
+Version = "1.0"
 
 class Clioutput():
-    def __init__(self):
+    def __init__(self,arguments):
+        self.arguments = arguments
         self.banner()
 
     def banner(self):
         ascii_banner = pyfiglet.figlet_format("SQLscan")
         color = Colored()
         print(color.green(ascii_banner))
-        url="http://www.baidu.com"
-        version = "1.0"
-        Output().start(version,url,"*")
+        Output().start(Version,self.arguments.options.url,"*")
         print()

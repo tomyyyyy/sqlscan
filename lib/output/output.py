@@ -1,51 +1,68 @@
 from colorama import init, Fore, Back, Style
 import datetime
 
+
 class Output(object):
     def __init__(self):
         self.color = Colored()
 
-    def warning(self,data):
-        #用蓝色显示当前时间
+    def warning(self, data):
+        # 用蓝色显示当前时间
         time = str(datetime.datetime.now())[11:19]
-        print(self.color.white("["),end="")
-        print(self.color.blue(time),end="")
-        print(self.color.white("]"),end=" ")
-        #用红色显示报告类型
-        print(self.color.white("["),end="")
-        print(self.color.red("error"),end="")
-        print(self.color.white("]"),end=" ")
-        #显示详细内容
+        print(self.color.white("["), end="")
+        print(self.color.blue(time), end="")
+        print(self.color.white("]"), end=" ")
+        # 用红色显示报告类型
+        print(self.color.white("["), end="")
+        print(self.color.red("error"), end="")
+        print(self.color.white("]"), end=" ")
+        # 显示详细内容
         print(self.color.white(data))
 
-    def info(self,data):
-        #用蓝色显示当前时间
+    def info(self, data):
+        # 用蓝色显示当前时间
         time = str(datetime.datetime.now())[11:19]
-        print(self.color.white("["),end="")
-        print(self.color.blue(time),end="")
-        print(self.color.white("]"),end=" ")
-        #用红色显示报告类型
-        print(self.color.white("["),end="")
-        print(self.color.yellow("info"),end="")
-        print(self.color.white("]"),end=" ")
-        #显示详细内容
+        print(self.color.white("["), end="")
+        print(self.color.blue(time), end="")
+        print(self.color.white("]"), end=" ")
+        # 用红色显示报告类型
+        print(self.color.white("["), end="")
+        print(self.color.yellow("info"), end="")
+        print(self.color.white("]"), end=" ")
+        # 显示详细内容
         print(self.color.white(data))
-    
+
+    def info_inject(self, data):
+        # 用蓝色显示当前时间
+        time = str(datetime.datetime.now())[11:19]
+        print(self.color.white("["), end="")
+        print(self.color.blue(time), end="")
+        print(self.color.white("]"), end=" ")
+        # 用红色显示报告类型
+        print(self.color.white("["), end="")
+        print(self.color.yellow("info"), end="")
+        print(self.color.white("]"), end=" ")
+        # 显示详细内容
+        print(self.color.white("the parameter"), end=" ")
+        print(self.color.yellow(data), end=" ")
+        print(self.color.white("appears to be blind SQLi vulnerable"))
+        
+
     def ending(self):
-        #用蓝色显示当前时间
-        time = str(datetime.datetime.now())[:19]
+        # 用蓝色显示当前时间
+        time=str(datetime.datetime.now())[:19]
         print("[*] ending @ ", end="")
         print(self.color.white(time))
-    
-    def start(self,version,url,threads):
-        print(self.color.yellow("Version:"),end=" ")
-        print(self.color.blue(version),end=" ")
-        print(self.color.white("|"),end=" ")
-        print(self.color.yellow("Target:"),end=" ")
-        print(self.color.blue(url),end=" ")
-        print(self.color.white("|"),end=" ")
-        print(self.color.yellow("threads:"),end=" ")
-        print(self.color.blue(threads),end=" ")
+
+    def start(self, version, url, threads):
+        print(self.color.yellow("Version:"), end=" ")
+        print(self.color.blue(version), end=" ")
+        print(self.color.white("|"), end=" ")
+        print(self.color.yellow("Target:"), end=" ")
+        print(self.color.blue(url), end=" ")
+        print(self.color.white("|"), end=" ")
+        print(self.color.yellow("threads:"), end=" ")
+        print(self.color.blue(threads), end=" ")
 
 
 class Colored(object):
@@ -78,5 +95,4 @@ class Colored(object):
     # 前景色:黑色 背景色:默认
     def black(self, s):
         return Fore.BLACK
-
 

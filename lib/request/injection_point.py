@@ -1,7 +1,7 @@
 import requests
-
-# from lib.request.pageparse import Page
-from pageparse import Page
+from lib.request.pageparse import Page
+from lib.output.output import Output
+# from pageparse import Page
 
 class injection_point():
     """
@@ -25,6 +25,7 @@ class injection_point():
            }
         self.page = Page(self.url)
         self.basicurl, self.urlpath, self.parameter = self.page.parseurl()
+        self.output = Output()
 
 
 
@@ -40,7 +41,7 @@ class injection_point():
                 req = requests.get(self.urlpath,params=param1,headers = self.headers)
                 if  (not self.judge_page(param1)) and self.judge_page(param2):          #判断后缀加入闭合符号异常，再追加后缀正常判断注入点
                     self.injection_point, self.injection_url = j, req.url
-                    print("the parameter %s appears to be blind SQLi vulnerable" %(j))
+                    self.output.info_inject(j)
                     return True
         return False
 
@@ -68,13 +69,12 @@ class injection_point():
 
     def judge_inject(self):
         if self.reload_payloads(self.payloads):
-            print(self.injection_url,self.injection_point)
+            self.output.info(self.injection_url)
         elif self.number_inject():
-            print(self.injection_url,self.injection_point)
+            self.output.info(self.injection_url)
 
         
-               
-
+            
 if __name__ == '__main__':
     
     for i in range(10):
