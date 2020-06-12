@@ -9,12 +9,19 @@ class ArgumentParser(object):
 
     def __init__(self, script_path):
         self.script_path = script_path
-        self.parseConfig()
         self.options = self.parseArguments()
 
-    def parseConfig(self):
-        pass
-
+    @property
+    def headers(self):
+        if self.options.user_agent == None:
+            self.options.user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0'
+        elif self.options.cookie == None:
+            cookie = ""
+        headers = {
+            'User-Agent': self.options.user_agent,
+            'cookie': self.options.cookie
+           }
+        return headers
        
     def parseArguments(self):
         usage = 'Usage: %prog [options] arg1 arg2 ...'
@@ -37,7 +44,7 @@ class ArgumentParser(object):
 
         parser.add_option('--data',
                         action='store',dest='post_data',
-                        help='input post data')
+                        help='input post data,Use = & as separators')
         parser.add_option('--cookie',
                         action='store_true',dest='cookie',
                         help='input cookie information')

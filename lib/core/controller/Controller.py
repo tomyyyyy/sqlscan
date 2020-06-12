@@ -11,7 +11,7 @@ class Controller(object):
         self.output = output
 
         if self.arguments.options.url != None:
-            injection_point(self.arguments.options.url).judge_inject()
+            injection_point(self.arguments).judge_inject()
         else:
             self.output.warining("must support url parameters")
             sys.exit(0)

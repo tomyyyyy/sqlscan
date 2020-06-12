@@ -1,6 +1,7 @@
 import requests
 from lib.request.pageparse import Page
 from lib.output.output import Output
+from lib.output.helptxt import ArgumentParser
 
 
 class injection_point():
@@ -16,19 +17,12 @@ class injection_point():
     injection_point = None
     injection_url = None
 
-    def __init__(self,url):
-        self.url = url
-        self.user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0'
-        self.cookie = ""
-        self.headers = {
-            'content-type': 'application/json',
-            'User-Agent': self.user_agent,
-            'cookie': self.cookie
-           }
-        self.page = Page(self.url)
+    def __init__(self,arguments):
+        self.url = arguments.options.url
+        self.headers = arguments.headers
+        self.page = Page(arguments)
         self.basicurl, self.urlpath, self.parameter = self.page.parseurl()
         self.output = Output()
-
 
 
     def reload_payloads(self, payloads):
