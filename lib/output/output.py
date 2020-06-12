@@ -45,7 +45,7 @@ class Output(object):
         # 显示详细内容
         print(self.color.white("the parameter"), end=" ")
         print(self.color.yellow(data), end=" ")
-        print(self.color.white("appears to be blind SQLi vulnerable"))
+        print(self.color.white("appears to be SQLi vulnerable"))
         
 
     def ending(self):

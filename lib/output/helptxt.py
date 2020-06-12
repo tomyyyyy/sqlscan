@@ -4,6 +4,7 @@ from optparse import OptionParser
 from optparse import OptionGroup
 
 
+
 class ArgumentParser(object):
 
     def __init__(self, script_path):
@@ -13,7 +14,7 @@ class ArgumentParser(object):
 
     def parseConfig(self):
         pass
-        # print(self.options.url)
+
        
     def parseArguments(self):
         usage = 'Usage: %prog [options] arg1 arg2 ...'

@@ -1,5 +1,6 @@
 from lib.request.injection_point import injection_point
 from lib.output.output import Output
+import sys
 
 
 class Controller(object):
@@ -11,6 +12,9 @@ class Controller(object):
 
         if self.arguments.options.url != None:
             injection_point(self.arguments.options.url).judge_inject()
+        else:
+            self.output.warining("must support url parameters")
+            sys.exit(0)
 
         
 
