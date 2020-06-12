@@ -16,6 +16,7 @@ class PageInfo():
     url = ''
     page_normal = '' # normal page
     malinfo_location = [] # 恶意信息位置, [ ['root', 'tree' ...],['root', 'tree' ... ], ...]
+    info_normal = [] # 正常页面，信息
 
     def __init__(self, url):
         '''
@@ -32,12 +33,12 @@ class PageInfo():
             sys.stderr.write('website should response 200 status_code\n')
             raise SystemExit(1)
 
-    def load_payload(self, url_malformation):
+    def get_info(self, url_malformation):
         '''
          假设get方式请求，并且只有一个参数
          多参数，至暂未考虑
          应该先调用get_malinfo_location,进行恶意点初始化
-         执行payload，返回页面信息点 ['', '', '']
+         根据已知的信息位置，返回第一个内容 "dsada"
          返回-1表示找不到暴露信息路径
          返回-2，表示页面404
         '''
@@ -49,27 +50,46 @@ class PageInfo():
             # 404 页面，此次payload有误，重新加载
             return -2
         else:
-            # 进行页面比较
-            malinformation = []
+            # 提取恶意信息
+            orig_malinformation = [] # 原始信息
             page_malformation = req.text
             page_parse = Page_parse(page_malformation)
             for loaction_list in self.malinfo_location:
-                malinformation.append(page_parse.loction2str(loaction_list))
+                orig_malinformation.append(page_parse.loction2str(loaction_list))
+            # 进行页面比较
+            malinformation = self._refine_str(self.info_normal[0], orig_malinformation[0])
             return malinformation
+
+    def _refine_str(self, str1, str2):
+        if len(str1) < len(str2):
+            count = len(str1)
+        else:
+            count = len(str2)
+        for i in range(count):
+            if str1[i] != str2[i]:
+                break
+        return str2[i:]
 
     def init_malinfo_location(self, url_malformation, special_num_list):
         '''
-        进行页面信息位置探测,初始化self.malinfo_location，返回页面信息暴露位置次数
+        进行页面信息位置探测,初始化self.malinfo_location，返回页面信息暴露位置最后一次被探测到的特定字符序号
         special_num_list: 特定字符串列表. ['dsa', 'special']
         '''
         req = requests.get(url=url_malformation)
         page_malformation = req.text
         page_parse = Page_parse(page_malformation)
+        i = -1
         for special_num in special_num_list:
             location= page_parse.str2location(str(special_num))
             if len(location) != 0:
+                i = 1 + i
                 self.malinfo_location.append(location)
-        return len(self.malinfo_location)
+        # 进行正常页面信息提取
+        page_parse = Page_parse(self.page_normal)
+        for location_list in self.malinfo_location:
+            self.info_normal.append(page_parse.loction2str(location_list))
+
+        return i
 
     def get_malinfo_location(self):
         return self.malinfo_location

