@@ -3,12 +3,11 @@
 # time: 2020年 06月 10日 星期三 17:02:23 CST 
 
 import sys
-sys.path.append('/home/nsfoxer/temp/sqlscan/')
+sys.path.append('/home/nsfoxer/src/foxer/sqlscan/')
 from lib.core.function.get_info import *
 from lib.core.function.payload import *
 from lib.database.data_storage import *
 import random
-from pudb import set_trace
 
 class Injection():
     '''

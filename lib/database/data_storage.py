@@ -11,10 +11,10 @@ class Data():
 
     def __init__(self, filename):
         f_l = F"/tmp/nsfoxer/{filename}"
-        if os.path.exists(f_l) == False:
-            self._create_databases()
         self.conn = sqlite3.connect(f_l)
         self.cursor = self.conn.cursor()
+        if os.path.exists(f_l) == False:
+            self._create_databases()
 
     def _create_databases(self):
         # 创建库表

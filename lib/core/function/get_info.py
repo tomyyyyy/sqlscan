@@ -57,7 +57,7 @@ class PageInfo():
             for loaction_list in self.malinfo_location:
                 orig_malinformation.append(page_parse.loction2str(loaction_list))
             # 进行页面比较
-            malinformation = self._refine_str(self.info_normal[0], orig_malinformation[0])
+            malinformation = self._refine_str(self.info_normal[-1], orig_malinformation[-1])
             return malinformation
 
     def _refine_str(self, str1, str2):
@@ -79,20 +79,22 @@ class PageInfo():
         page_malformation = req.text
         page_parse = Page_parse(page_malformation)
         # 包含special_num_list的字符串位置
-        i = -1
+        i = 0
+        serial_num = -1 # 表示包含special_num_list字符第几个最后一次出现
         self.malinfo_location = []
         for special_num in special_num_list:
             location= page_parse.str2location(str(special_num))
             if len(location) != 0:
-                i = 1 + i
+                serial_num = i
                 self.malinfo_location.append(location)
+            i += 1
         # 进行正常页面信息提取
         page_parse = Page_parse(self.page_normal)
         self.info_normal = []
         for location_list in self.malinfo_location:
             self.info_normal.append(page_parse.loction2str(location_list))
 
-        return i
+        return serial_num
 
     def get_malinfo_location(self):
         return self.malinfo_location
