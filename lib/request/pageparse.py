@@ -35,6 +35,12 @@ class Page():
             key, value = i.split("=")[0],i.split("=")[1]
             parameter[key] = value
         return self.url, urlpath, parameter
+
+    def request(self,url,param,headers):
+        if self.options.post_data == None:
+            return requests.get(url,params=param,headers=headers)
+        else:
+            return requests.post(url,data=param,headers=headers)
         
 
 
