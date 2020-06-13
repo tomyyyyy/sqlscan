@@ -3,23 +3,23 @@
 # Time: 2020年 06月 11日 星期四 16:53:52 CST
 # 数据库存储与处理
 import sqlite3
+import os
 
 class Data():
     conn = None
     cursor = None
 
     def __init__(self, filename):
-        self.conn = sqlite3.connect(filename)
+        f_l = F"/tmp/nsfoxer/{filename}"
+        if os.path.exists(f_l) == False:
+            self._create_databases()
+        self.conn = sqlite3.connect(f_l)
         self.cursor = self.conn.cursor()
-        self._create_databases()
 
     def _create_databases(self):
         # 创建库表
         # 表示库名，表名
-        self.cursor.execute('''
-                            create table sqlscan
-            ( database char(50) not null,
-                table  char(50) not null);''')
+        self.cursor.execute('''  create table sqlscan  ( database char(50) not null, tables  char(50) not null);''')
         self.conn.commit()
 
     def close(self):
@@ -35,7 +35,7 @@ class Data():
             -1, 错误
         '''
         for db in database:
-            sql = F"insert into sqlscan (database, table) values({db}, sqlscan);"
+            sql = F"insert into sqlscan (database, tables) values({db}, sqlscan);"
             self.cursor.execute(sql)
         self.conn.commit()
 
@@ -43,7 +43,7 @@ class Data():
         '''
         返回所有数据库名['', '']
         '''
-        sql = 'select database where table="sqlscan" from sqlscan;'
+        sql = 'select database where tables="sqlscan" from sqlscan;'
         self.cursor.execute(sql)
         return  [row[0] for row in self.cursor]
 
@@ -56,7 +56,7 @@ class Data():
         '''
         for tb in table:
             # 向sqlscan表写入数据
-            sql = F"insert into sqlscan (database, table) values({database}, {tb});"
+            sql = F"insert into sqlscan (database, tables) values({database}, {tb});"
             self.cursor.execute(sql)
             # 创建这个表
             table_name = F"{database}_{tb}"
@@ -70,7 +70,7 @@ class Data():
         Returns:
             字符串为单元的列表，每一项表示一个库名
         '''
-        sql = F"select table where database=\"{database}\" and table != 'sqlscan'; "
+        sql = F"select table where database=\"{database}\" and tables != 'sqlscan'; "
         result = self.cursor.execute(sql)
         return [row[0] for row in result]
 

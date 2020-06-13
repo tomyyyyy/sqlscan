@@ -78,7 +78,9 @@ class PageInfo():
         req = requests.get(url=url_malformation)
         page_malformation = req.text
         page_parse = Page_parse(page_malformation)
+        # 包含special_num_list的字符串位置
         i = -1
+        self.malinfo_location = []
         for special_num in special_num_list:
             location= page_parse.str2location(str(special_num))
             if len(location) != 0:
@@ -86,6 +88,7 @@ class PageInfo():
                 self.malinfo_location.append(location)
         # 进行正常页面信息提取
         page_parse = Page_parse(self.page_normal)
+        self.info_normal = []
         for location_list in self.malinfo_location:
             self.info_normal.append(page_parse.loction2str(location_list))
 
@@ -104,40 +107,62 @@ class Page_parse(HTMLParser):
     special_str = ''
     adjust_location_list = []
     data = ''
+    _str_is_success = False
+    _location_is_success = False
+    str_location_list = []
 
     def __init__(self, page_str):
+        HTMLParser.__init__(self)
         self.page_text = page_str
+        self._clean()
 
     def set_page_text(self, page_str):
         # 重新设置目标文本
+        self._clean()
         self.page_text = page_str
 
-    def str2location(self, special_str):
-        # 将第一个特定字符串的所有前标签位置以列表形式返回
+    def _clean(self):
+        self._str_is_success = False
+        self._location_is_success = False
+        self.location_list = []
+        self.data = ''
         self.adjust_location_list = [] # 将判断列表置空
+        self.special_str = '' # 将特定字符串置空
+        self.str_location_list = []
+
+    def str2location(self, special_str):
+        self._clean()
+        # 将第一个特定字符串的所有前标签位置以列表形式返回
         self.special_str = special_str
         self.feed(self.page_text)
-        return self.location_list
+        if self._str_is_success == True:
+            return self.str_location_list
+        else:
+            return []
 
     def loction2str(self, loaction_list):
+        self._clean()
         # 取出给定的标签位置的内容
-        self.special_str = '' # 将特定字符串置空
         self.adjust_location_list = loaction_list
         self.feed(self.page_text)
-        return self.data
+        if self._location_is_success == True:
+            return self.data
+        else:
+            return -1
 
     def handle_starttag(self, tag, attrs):
         self.location_list.append(tag)
+        if self._str_is_success == False:
+            self.str_location_list.append(tag)
 
 #    def handle_endtag(self, tag):
-#        self.location_list.pop()
+#        self.location_list.append(tag)
 
     def handle_data(self, data):
         # 得到ajust_location_list路径中的数据,当判断列表不为空时，表示被location2str调用
-        if len(self.adjust_location_list) != 0 and operator.eq(self.adjust_location_list, self.location_list):
+        if len(self.adjust_location_list) != 0 and operator.eq(self.adjust_location_list, self.location_list) and self._location_is_success == False:
             self.data = data
-            return
-        # 获得特定字符串所在标签路径，当特殊字符不为空时，表示被location2str调用
-        if self.special_str != '' and self.special_str in data:
-            return
-
+            self._location_is_success = True
+        # 获得特定字符串所在标签路径，当特殊字符不为空时，表示被str2location调用
+        if self.special_str != '' and self.special_str in data and self._str_is_success == False:
+            self._str_is_success = True
