@@ -1,9 +1,4 @@
-#!/bin/env python3
-# nsfoxer
-# time: 2020年 06月 10日 星期三 17:02:23 CST 
-
 import sys
-sys.path.append('/home/nsfoxer/src/foxer/sqlscan/')
 from lib.core.function.get_info import *
 from lib.core.function.payload import *
 from lib.database.data_storage import *
@@ -89,6 +84,7 @@ class Injection():
                 self._get_columns(database, [table])
         if level > 3:
             self._get_data(database, table, columns)
+        self.database.close()
 
 
     def _get_databases(self):

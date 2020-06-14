@@ -87,8 +87,10 @@ class injection_point():
     def judge_inject(self):
         if self.reload_payloads(self.payloads):
             self.output.info(self.injection_url)
+            return self.injection_url[-1]
         elif self.number_inject():
             self.output.info(self.injection_url)
+            return " "
         elif self.blind_inject(self.blind_payload):
             self.output.info(self.injection_url)
 

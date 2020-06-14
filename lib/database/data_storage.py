@@ -1,4 +1,3 @@
-#!/bin/env python3
 # nsfoxer
 # Time: 2020年 06月 11日 星期四 16:53:52 CST
 # 数据库存储与处理
@@ -11,7 +10,7 @@ class Data():
     cursor = None
 
     def __init__(self, filename):
-        f_l = F"/tmp/nsfoxer/{filename}"
+        f_l = F"{filename}"
         self.conn = sqlite3.connect(f_l)
         self.cursor = self.conn.cursor()
         self._create_databases(f_l)
@@ -32,6 +31,7 @@ class Data():
 
     def close(self):
         self.conn.commit()
+        self.cursor.close()
         self.conn.close()
 
     def add_database(self, database):
