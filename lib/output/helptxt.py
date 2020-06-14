@@ -38,6 +38,10 @@ class ArgumentParser(object):
                         action='store',dest='level',
                         metavar='level',help='input level')
 
+        parser.add_option('--vv',
+                        action='store_true',dest='show_level',default=False,
+                        help='input level')
+
         parser.add_option('--thread',
                         action='store',dest='threads_Count',default=5,
                         help='input threadsCount')
@@ -54,13 +58,13 @@ class ArgumentParser(object):
                         help="use user-agent")
 
         group = OptionGroup(parser,'Scan Options')
-        group.add_option('--dbs',action='store_true',
+        group.add_option('--dbs',action='store_true',default=False,
                         help='list databases')
-        group.add_option('--tables',action='store_true',
+        group.add_option('--tables',action='store_true',default=False,
                         help='list tables')
-        group.add_option('--columns',action='store_true',
+        group.add_option('--columns',action='store_true',default=False,
                         help='list columns')
-        group.add_option('--dump',action='store_true',
+        group.add_option('--dump',action='store_true',default=False,
                         help='list all information')
         parser.add_option_group(group)
 

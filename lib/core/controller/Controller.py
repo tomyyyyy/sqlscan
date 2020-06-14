@@ -13,7 +13,7 @@ class Controller(object):
 
         if self.arguments.options.url != None:
             close_symbol = injection_point(self.arguments).judge_inject()
-            inject = Injection(self.arguments.options.url, close_symbol)
+            inject = Injection(self.arguments.options.url,self.arguments, close_symbol)
             inject.exec_payload(1, 4)
         else:
             self.output.warining("must support url parameters")

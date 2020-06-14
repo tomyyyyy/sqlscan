@@ -19,11 +19,11 @@ class Page():
                 urlpath = self.url.split("?")[0]
                 parameters = self.url.split("?")[1].split("&")
             except Exception as e:
-                self.output.warning("url输入不符合要求!",e)
+                self.output.error("url输入不符合要求!",e)
                 sys.exit(0)
             try:
                 if requests.get(self.url).status_code == 404:
-                    self.output.warning("url不可访问!")
+                    self.output.error("url不可访问!")
                     sys.exit(0)
             except Exception as e:
                 print(e)

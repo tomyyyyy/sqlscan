@@ -16,6 +16,8 @@ class injection_point():
     
     injection_point = None
     injection_url = None
+    injection_close_symbol = None
+
 
     def __init__(self,arguments):
         self.url = arguments.options.url
@@ -36,7 +38,7 @@ class injection_point():
                 param2[j] = param2[j] + payload + "-- "
                 req = self.page.request(self.urlpath,param1,self.headers)
                 if  (not self.judge_page(self.urlpath,param1)) and self.judge_page(self.urlpath,param2):          #判断后缀加入闭合符号异常，再追加后缀正常判断注入点
-                    self.injection_point, self.injection_url = j, req.url
+                    self.injection_point, self.injection_url, self.injection_close_symbol = j, req.url,payload
                     self.output.info_inject(j)
                     return True
         return False
@@ -87,7 +89,7 @@ class injection_point():
     def judge_inject(self):
         if self.reload_payloads(self.payloads):
             self.output.info(self.injection_url)
-            return self.injection_url[-1]
+            return self.injection_close_symbol
         elif self.number_inject():
             self.output.info(self.injection_url)
             return " "

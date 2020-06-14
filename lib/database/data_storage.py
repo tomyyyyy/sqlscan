@@ -4,16 +4,18 @@
 import sqlite3
 import os
 import sys
+from lib.output.output import *
 
 class Data():
     conn = None
     cursor = None
 
     def __init__(self, filename):
-        f_l = F"{filename}"
+        f_l = F"./lib/database/data/{filename}"
         self.conn = sqlite3.connect(f_l)
         self.cursor = self.conn.cursor()
         self._create_databases(f_l)
+        self.output = Output()
 
     def _create_databases(self, file_path):
         # 创建库表
@@ -43,7 +45,7 @@ class Data():
             -1, 错误
         '''
         if database[0] == '':
-            sys.stderr.write("数据无效")
+            self.output.error("数据无效")
             return -1
         for db in database:
             if db in self.get_databases():
@@ -68,7 +70,7 @@ class Data():
             table: 若干个str(表名)的列表
         '''
         if database == '' or table[0] == '':
-            sys.stderr.write("数据无效")
+            self.output.error("数据无效")
             return -1
         # 判断库是否存在
         if database not in self.get_databases():
@@ -106,7 +108,7 @@ class Data():
             column : str单元的列表名
         '''
         if database == '' or table == '' or column[0] == '':
-            sys.stderr.write("数据无效")
+            self.output.error("数据无效")
             return -1
         if database not in self.get_databases() or table not in self.get_tables(database):
             return -1
@@ -153,7 +155,7 @@ class Data():
             0: 成功
         '''
         if database == '' or table == '' or len(column)==0 or column[0] == '' or data [0]== '':
-            sys.stderr.write("数据无效")
+            self.output.error("数据无效")
             return -1
         # 数据有效性检测
         if len(column) != len(data):

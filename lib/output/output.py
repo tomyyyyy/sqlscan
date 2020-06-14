@@ -14,10 +14,23 @@ class Output(object):
         print(self.color.white("]"), end=" ")
         # 用红色显示报告类型
         print(self.color.white("["), end="")
-        print(self.color.red("error"), end="")
+        print(self.color.red("warning"), end="")
         print(self.color.white("]"), end=" ")
         # 显示详细内容
         print(self.color.white(data))
+    
+    def error(self, data):
+        # 用红色显示当前时间
+        time = str(datetime.datetime.now())[11:19]
+        print(self.color.white("["), end="")
+        print(self.color.red(time), end="")
+        print(self.color.white("]"), end=" ")
+        # 用红色显示报告类型
+        print(self.color.white("["), end="")
+        print(self.color.red("error"), end="")
+        print(self.color.white("]"), end=" ")
+        # 显示详细内容
+        print(self.color.red(data))
 
     def info(self, data):
         # 用蓝色显示当前时间
