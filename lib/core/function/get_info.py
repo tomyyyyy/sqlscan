@@ -74,7 +74,7 @@ class PageInfo():
             if str1[i] != str2[i]:
                 break
         # str2 字符过少，即未提取到有用信息；这里是边界处理
-        if i == len(str2)-1:
+        if str1[i] == str2[i]:
             return ''
         return str2[i:]
 

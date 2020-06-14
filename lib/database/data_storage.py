@@ -11,7 +11,7 @@ class Data():
     cursor = None
 
     def __init__(self, filename):
-        f_l = F"./lib/database/data/{filename}"
+        f_l = F"/tmp/nsfoxer/temp/{filename}"
         self.conn = sqlite3.connect(f_l)
         self.cursor = self.conn.cursor()
         self._create_databases(f_l)
@@ -107,7 +107,7 @@ class Data():
             table : str型的一个表名
             column : str单元的列表名
         '''
-        if database == '' or table == '' or column[0] == '':
+        if database == '' or table == '' or len(column) == 0 or column[0] == '':
             self.output.error("数据无效")
             return -1
         if database not in self.get_databases() or table not in self.get_tables(database):

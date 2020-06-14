@@ -40,7 +40,7 @@ count_list
 '''
 
 
-class Payload():
+class Payload2():
     pre_payload = '' # payload 前缀，用于引号闭合
 
     def __init__(self,pre_payload):

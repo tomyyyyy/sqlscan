@@ -2,7 +2,7 @@
 class Payload():
     pre_payload = '' # payload 前缀，用于引号闭合
 
-    def __init__(self,pre_payload):
+    def __init__(self, pre_payload=' '):
         self.pre_payload = pre_payload
 
     def order_by(self, a):        #传入order by所需的列数
