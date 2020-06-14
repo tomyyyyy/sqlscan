@@ -19,7 +19,7 @@ class Injection():
 
     def __init__(self, url, pre_payload=''):
         self._magic_str = "$$$$$$$$$$$$$$$$$"
-        _url = url.split('//')[1].split('/')[0]
+        _url = url.split('//')[1].split('/')[0].split(':')[0]
         self.database = Data(F"{_url}.sqlite")
         self.url = url
         self.page_info = PageInfo(url)
