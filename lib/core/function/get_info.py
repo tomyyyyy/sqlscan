@@ -61,13 +61,21 @@ class PageInfo():
             return malinformation
 
     def _refine_str(self, str1, str2):
+        if isinstance(str2, str) == False:
+            return ''
+        if str1 == str2:
+            return ''
         if len(str1) < len(str2):
             count = len(str1)
         else:
             count = len(str2)
+        i = 0
         for i in range(count):
             if str1[i] != str2[i]:
                 break
+        # str2 字符过少，即未提取到有用信息；这里是边界处理
+        if i == len(str2)-1:
+            return ''
         return str2[i:]
 
     def init_malinfo_location(self, url_malformation, special_num_list):

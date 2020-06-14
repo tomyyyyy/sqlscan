@@ -54,7 +54,7 @@ class Payload():
 
         else:
             list4 = [str(i) for i in column_name]
-            list5 = ',0x20,'.join(list4)
+            list5 = ',0x60,'.join(list4)
             list3 = []
             for i in range(num1):
                 if i == num2-1:
