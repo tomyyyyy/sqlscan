@@ -144,6 +144,7 @@ class Injection():
             data = self._analysis_data(database, table, columns, ' ')
             for data_line in data:
                 self.database.add_data(database, table, columns, data_line.split(','))
+                self.database.show_data(database, table, columns)
         else:
             # 搜索所有库的所有表的所有列的所有数据
             for db in self.database.get_databases():

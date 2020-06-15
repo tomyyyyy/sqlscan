@@ -254,7 +254,7 @@ class Data():
         sql = F"select {sql_columns} from {database}_{table} ;"
         sql_cmd = self.cursor.execute(sql)
         sql_result = sql_cmd.fetchall()
-        self.tb.field_names = ['id','columnes','type']
+        self.tb.field_names = sql_columns.split(",")
         for i in sql_result:
             self.tb.add_row(list(i)[:3])
         print(self.tb)
