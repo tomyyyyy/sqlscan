@@ -5,7 +5,7 @@ from lib.output.output import Colored, Output
 import pyfiglet
 import os,sys
 
-Version = "1.0"
+Version = "1.1.0"
 
 class Clioutput():
     def __init__(self,arguments):
