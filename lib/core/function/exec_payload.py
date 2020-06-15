@@ -104,7 +104,6 @@ class Injection():
         for db in databases:
             tables = self._analysis_data(db)
             self.database.add_tables(db, tables)
-            print(db)
             self.database.show_tables(db)
 
     def _get_columns(self, database='', table=[]):
@@ -173,7 +172,6 @@ class Injection():
         result = self.page_info.get_info(url_malformation)
         if result == '':
             self.output.error(F"result 结果异常,url: {url_malformation}")
-        print(result)
         return result.split(split_char)
 
     def _get_serial_num(self):
