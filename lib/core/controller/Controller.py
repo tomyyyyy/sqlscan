@@ -45,7 +45,7 @@ class Controller(object):
                 columns_name = self.arguments.options.column_name
             #对--dump参数进行判断
             if self.arguments.options.show_dump:
-                inject.exec_payload(1,4,database_name,table_name,columns_name)
+                inject.exec_payload(1,4,database_name,table_name,columns_name.split(","))
 
             
 

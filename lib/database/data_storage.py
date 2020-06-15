@@ -47,7 +47,7 @@ class Data():
             -1, 错误
         '''
         if database[0] == '':
-            self.output.error("数据无效")
+            self.output.error("database数据无效")
             return -1
         for db in database:
             if db in self.get_databases():
@@ -83,8 +83,8 @@ class Data():
             database: str型的一个库名
             table: 若干个str(表名)的列表
         '''
-        if database == '' or table[0] == '':
-            self.output.error("数据无效")
+        if database == '' or table == '':
+            self.output.error("table数据无效")
             return -1
         # 判断库是否存在
         if database not in self.get_databases():
@@ -133,8 +133,8 @@ class Data():
             table : str型的一个表名
             column : str单元的列表名
         '''
-        if database == '' or table == '' or len(column) == 0 or column[0] == '':
-            self.output.error("数据无效")
+        if database == '' or table == '' or column[0] == '':
+            self.output.error("columns数据无效")
             return -1
         if database not in self.get_databases() or table not in self.get_tables(database):
             return -1
@@ -241,3 +241,21 @@ class Data():
         sql = F"select {sql_columns} from {database}_{table} ;"
         self.cursor.execute(sql)
         return self.cursor.fetchall()
+
+    def show_data(self, database, table, column):
+        '''
+        打印出所有的数据库名称
+        '''
+        sql_columns = ''
+        for i in range(len(column)):
+            sql_columns = sql_columns + column[i]
+            if i < len(column)-1:
+                sql_columns += ', '
+        sql = F"select {sql_columns} from {database}_{table} ;"
+        sql_cmd = self.cursor.execute(sql)
+        sql_result = sql_cmd.fetchall()
+        self.tb.field_names = ['id','columnes','type']
+        for i in sql_result:
+            self.tb.add_row(list(i)[:3])
+        print(self.tb)
+
