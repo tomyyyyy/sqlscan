@@ -59,13 +59,13 @@ class ArgumentParser(object):
 
         group = OptionGroup(parser,'Scan Options')
         group.add_option('--dbs',action='store_true',default=False,
-                        help='list databases')
+                        dest='show_dbs',help='list databases')
         group.add_option('--tables',action='store_true',default=False,
-                        help='list tables')
+                        dest='show_tables',help='list tables')
         group.add_option('--columns',action='store_true',default=False,
-                        help='list columns')
+                        dest='show_columns',help='list columns')
         group.add_option('--dump',action='store_true',default=False,
-                        help='list all information')
+                        dest='show_dump',help='list all information')
         parser.add_option_group(group)
 
         group = OptionGroup(parser,'set scan-Options')

@@ -95,13 +95,13 @@ class Injection():
 
     def _get_databases(self):
         databases = self._analysis_data2()[0]
-        print("数据库库名爆破：" + str(databases))
         # 由于limit payload问题，将不再进行系统库探测
         clean_databases = []
         for db in databases:
             if db != "information_schema" and db != "mysql" and db != "performance_schema":
                 clean_databases.append(db)
         self.database.add_database(clean_databases)
+        self.database.show_databases()
 
     def _get_tables(self, database=[]):
         databases = []
@@ -111,9 +111,8 @@ class Injection():
             databases = self.database.get_databases()
         for db in databases:
             tables = self._analysis_data2(db)[0]
-            print("数据库：" + db)
-            print("\t tables: " + str(tables))
             self.database.add_tables(db, tables)
+            self.database.show_tables(db)
 
     def _get_columns(self, database='', table=[]):
         '''
@@ -128,14 +127,15 @@ class Injection():
             for tb in table:
                 columns = self._analysis_data2(database, tb)[0]
                 self.database.add_column(database, tb, columns)
+                self.database.show_columns(database,str(tb))
         else:
             # 全部搜索
             for db in self.database.get_databases():
                 for tb in self.database.get_tables(db):
                     columns = self._analysis_data2(db, tb)[0]
-                    print("database: "  + db)
-                    print("\ttable: " + tb)
-                    print("\t\t columns: " + str(columns))
+                    # print("database: "  + db)
+                    # print("\ttable: " + tb)
+                    # print("\t\t columns: " + str(columns))
                     self.database.add_column(db, tb, columns)
 
     def _get_data(self, database='', table='', columns=[]):
@@ -160,10 +160,10 @@ class Injection():
                     columns = self.database.get_columns(db, tb)
                     data = self._analysis_data2(db, tb, columns)
                     for data_line in data:
-                        print("database: " + db)
-                        print("\ttable:" + tb)
-                        print("\t\tcolumns: " + str(columns))
-                        print("\t\t\tdata: " + str(data_line))
+                        # print("database: " + db)
+                        # print("\ttable:" + tb)
+                        # print("\t\tcolumns: " + str(columns))
+                        # print("\t\t\tdata: " + str(data_line))
                         self.database.add_data(db, tb, columns, data_line)
 
     def _analysis_data(self, database='', table='', columns=[], split_char=','):
@@ -181,7 +181,6 @@ class Injection():
         result = self.page_info.get_info(url_malformation)
         if result == '':
             self.output.error(F"result 结果异常,url: {url_malformation}")
-        print(result)
         return result.split(split_char)
 
     def _analysis_data2(self, database='', table='', columns=[]):
@@ -198,7 +197,7 @@ class Injection():
         # 得到库*的总数
         payload = self.payload2.count_list(self._probe_num, self._serial_num, database, table, columns[0])
         url_malformation = self._url_ready.replace(self._magic_str, str(payload))
-        print("\033[33m%s\033[0m" % (url_malformation))
+        self.output.info(url_malformation)
         result = self.page_info.get_info(url_malformation)
         if result == '':
             self.output.error(F"result 结果异常,url: {url_malformation}")

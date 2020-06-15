@@ -5,17 +5,19 @@ import sqlite3
 import os
 import sys
 from lib.output.output import *
+import prettytable as pt
 
 class Data():
     conn = None
     cursor = None
 
     def __init__(self, filename):
-        f_l = F"/tmp/nsfoxer/temp/{filename}"
+        f_l = F"./lib/database/data/{filename}"
         self.conn = sqlite3.connect(f_l)
         self.cursor = self.conn.cursor()
         self._create_databases(f_l)
         self.output = Output()
+        self.tb = pt.PrettyTable()
 
     def _create_databases(self, file_path):
         # 创建库表
@@ -62,6 +64,18 @@ class Data():
         self.cursor.execute(sql)
         return  [row[0] for row in self.cursor]
 
+    def show_databases(self):
+        '''
+        打印出所有的数据库名称
+        '''
+        sql = 'select database from sqlscan where tables="sqlscan" ;'
+        sql_cmd = self.cursor.execute(sql)
+        sql_result = sql_cmd.fetchall()
+        self.tb.field_names = ['database']
+        for i in sql_result:
+            self.tb.add_row(list(i))
+        print(self.tb)
+
     def add_tables(self, database, table):
         '''
         增加若干表
@@ -98,6 +112,18 @@ class Data():
         sql = F"select tables from sqlscan where database='{database}' and tables != 'sqlscan'; "
         result = self.cursor.execute(sql)
         return [row[0] for row in result]
+
+    def show_tables(self, database):
+        '''
+        打印出所有的数据库名称
+        '''
+        sql = F"select tables from sqlscan where database='{database}' and tables != 'sqlscan'; "
+        sql_cmd = self.cursor.execute(sql)
+        sql_result = sql_cmd.fetchall()
+        self.tb.field_names = ['tables']
+        for i in sql_result:
+            self.tb.add_row(list(i))
+        print(self.tb)
 
     def add_column(self, database, table, column):
         '''
@@ -141,6 +167,19 @@ class Data():
             if row[1] != 'sqlscan_id':
                 sim_result.append(row[1])
         return sim_result
+
+    def show_columns(self, database,table):
+        '''
+        打印出所有的数据库名称
+        '''
+        table_name = F"{database}_{table}"
+        sql = F"pragma table_info({table_name});"
+        sql_cmd = self.cursor.execute(sql)
+        sql_result = sql_cmd.fetchall()
+        self.tb.field_names = ['id','columnes','type']
+        for i in sql_result:
+            self.tb.add_row(list(i)[:3])
+        print(self.tb)
 
     def add_data(self, database, table, column, data):
         '''
