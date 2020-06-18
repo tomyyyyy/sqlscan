@@ -15,15 +15,12 @@ class Controller(object):
             close_symbol = injection_point(self.arguments).judge_inject()
             inject = Injection(self.arguments.options.url,self.arguments, close_symbol)
             #对-l参数进行判断，判断注入等级
-            if self.arguments.options.level == None:
-                level = 2
-            else:
+            if self.arguments.options.level != None:
                 if self.arguments.options.level[0] == "=":
                     level = int(self.arguments.options.level[1:])
                 else:
                     level = int(self.arguments.options.level)
-
-            # inject.exec_payload(1,level)
+                inject.exec_payload(1,level)
 
             #对--dbs参数进行判断
             if self.arguments.options.show_dbs:
@@ -45,7 +42,11 @@ class Controller(object):
                 columns_name = self.arguments.options.column_name
             #对--dump参数进行判断
             if self.arguments.options.show_dump:
-                inject.exec_payload(1,4,database_name,table_name,columns_name.split(","))
+                if not self.arguments.options.column_name:
+                    columns_name = ""
+                else:
+                    columns_name = columns_name.split(",")
+                inject.exec_payload(1,4,self.arguments.options.database_name,self.arguments.options.table_name,columns_name)
 
             
 

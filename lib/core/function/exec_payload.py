@@ -138,6 +138,7 @@ class Injection():
             columns: list 每一项str,表示一个列
         '''
         if len(database) != 0 and len(table) != 0 and len(columns) != 0:
+        # if database != None and table != None and columns != None:
             # 指定搜索
             # 查找到所有数据，每一行以空格相隔, 每行数据以逗号相隔
             data = self._analysis_data(database, table, columns, ' ')
