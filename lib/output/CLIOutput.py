@@ -11,6 +11,7 @@ class Clioutput():
     def __init__(self,arguments):
         self.arguments = arguments
         self.output = Output()
+        self.script_path = arguments.script_path
         self.banner()
         
 
@@ -24,3 +25,9 @@ class Clioutput():
 
         self.output.start(Version,self.arguments.options.url,"*")
         print()
+        if not os.path.join(self.script_path,'lib','database','data'):
+            os.makedirs(os.path.join(self.script_path,'lib','database','data'))
+        
+        
+
+

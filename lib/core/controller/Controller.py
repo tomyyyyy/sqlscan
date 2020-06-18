@@ -1,6 +1,7 @@
 from lib.request.injection_point import injection_point
 from lib.output.output import Output
 from lib.core.function.exec_payload import Injection
+from lib.database.data_storage import *
 import sys
 
 
@@ -10,10 +11,14 @@ class Controller(object):
         self.exit = False
         self.arguments = arguments
         self.output = output
+        self.database = None
 
         if self.arguments.options.url != None:
             close_symbol = injection_point(self.arguments).judge_inject()
             inject = Injection(self.arguments.options.url,self.arguments, close_symbol)
+            _url = self.arguments.options.url.split('//')[1].split('/')[0].split(':')[0]
+            self.database = Data(F"{_url}.sqlite")
+            
             #对-l参数进行判断，判断注入等级
             if self.arguments.options.level != None:
                 if self.arguments.options.level[0] == "=":
@@ -42,13 +47,8 @@ class Controller(object):
                 columns_name = self.arguments.options.column_name
             #对--dump参数进行判断
             if self.arguments.options.show_dump:
-                if not self.arguments.options.column_name:
-                    columns_name = ""
-                else:
-                    columns_name = columns_name.split(",")
-                inject.exec_payload(1,4,self.arguments.options.database_name,self.arguments.options.table_name,columns_name)
-
-            
+                inject.exec_payload(1,4)
+                self.database.show_data(self.arguments.options.database_name,table_name,self.arguments.options.column_name)
 
         else:
             self.output.warining("must support url parameters")
